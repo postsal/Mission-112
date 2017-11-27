@@ -1,9 +1,25 @@
-module.exports = function main(inputs) {
+exports.main = function main(inputs) {
     var datbase=require('./datbase');
     var loadAllItems =datbase.loadAllItems();
     var loadPromotions = datbase.loadPromotions();
-    var str = '***<没钱赚商店>购物清单***\n';
+   
     //计算购物清单物品以及数量
+    var result = this.createOrder(inputs);
+    //console.log(result);
+    //添加购物清单物品的编码
+    this.addInfoToOrder(loadAllItems,result);
+   //console.log(result);
+    
+    
+    //计算优惠
+    this.addPromotionsToOrder(loadPromotions,result);
+   // console.log(result);
+    
+    //打印
+    this.print(result);
+};
+
+exports.createOrder = function(inputs){
     var result = [];
     var app =[];
     //形成购物清单物品以及数量
@@ -27,8 +43,10 @@ module.exports = function main(inputs) {
             }
         }
     }
-    //console.log(result);
-    //添加购物清单物品的编码
+    return result;
+};
+
+exports.addInfoToOrder = function(loadAllItems,result){
     for( var i =0 ;i< result.length;i++){
         var item = result[i];
         for(var j =0 ;j< loadAllItems.length ;j++){
@@ -41,10 +59,10 @@ module.exports = function main(inputs) {
             }
         }
     }
-   //console.log(result);
-    
-    
-    //计算优惠
+    return result;
+};
+
+exports.addPromotionsToOrder = function(loadPromotions,result){
     for( var i =0 ;i< result.length;i++){
         var item = result[i];
         for(var j =0 ;j< loadPromotions.length ;j++){
@@ -55,20 +73,21 @@ module.exports = function main(inputs) {
             }
         }
     }
-   // console.log(result);
-    
-    //打印
-    var promotions =0   
+    return result;
+};
+exports.print = function (result){
+    var str = '***<没钱赚商店>购物清单***\n';
+    var promotions =0; 
     var sum =0;
     for(var i =0 ;i< result.length ;i++){
         var item = result[i];
         sum+=item.price*item.count;
-        if(item.type == 'BUY_TWO_GET_ONE_FREE' && item.count >=2){
+        if(item.type === 'BUY_TWO_GET_ONE_FREE' && item.count >=2){
             var promotion =item.price* (item.count -1);
             promotions +=item.price;
-            str += '名称：'+item.name+'，数量：'+item.count+item.unit+'，单价：'+item.price.toFixed(2)+'(元)，小计：'+promotion.toFixed(2)+'(元)\n'
+            str += '名称：'+item.name+'，数量：'+item.count+item.unit+'，单价：'+item.price.toFixed(2)+'(元)，小计：'+promotion.toFixed(2)+'(元)\n';
         }else{
-            str += '名称：'+item.name+'，数量：'+item.count+item.unit+'，单价：'+item.price.toFixed(2)+'(元)，小计：'+(item.price* item.count).toFixed(2)+'(元)\n'
+            str += '名称：'+item.name+'，数量：'+item.count+item.unit+'，单价：'+item.price.toFixed(2)+'(元)，小计：'+(item.price* item.count).toFixed(2)+'(元)\n';
         }
     }
     
@@ -76,12 +95,13 @@ module.exports = function main(inputs) {
     for(var i =0 ;i< result.length ;i++){
          var item = result[i];
         if(item.type == 'BUY_TWO_GET_ONE_FREE' && item.count >=2){
-            str +='名称：'+item.name+'，数量：'+1+item.unit+'\n'
+            str +='名称：'+item.name+'，数量：'+1+item.unit+'\n';
         }
     }
     str+='----------------------\n';
     str+= '总计：'+(sum -promotions).toFixed(2)+'(元)\n';
     str+='节省：'+promotions.toFixed(2)+'(元)\n'
     str+='**********************';
+    //console.log(JSON.stringify（result));
     console.log(str);
-};
+}
